@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"      # RabbitMQ main port
+      - "15672:15672"    # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+
+  sender:
+    build: .
+    command: bun run src/client/sender.ts
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - .:/app
+
+  receiver:
+    build: .
+    command: bun run src/client/receiver.ts
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - .:/app
+
+  worker_add:
+    build: .
+    command: bun run src/worker/addWorker.ts
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - .:/app
+
+  worker_sub:
+    build: .
+    command: bun run src/worker/subWorker.ts
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - .:/app
+    
+  worker_mul:
+    build: .
+    command: bun run src/worker/mulWorker.ts
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - .:/app
+
+  worker_div:
+    build: .
+    command: bun run src/worker/divWorker.ts
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - .:/app
